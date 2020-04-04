@@ -36,7 +36,9 @@ class MainApp(App):
         self.texture = Texture.create(size=Window.size)
         url = "http://192.168.1.12:8050/video_feed"
         self.stream = requests.get(url, stream=True)
-        Clock.schedule_interval(self.crap, 1/30)
+        self.fps_check_num = 0
+        Clock.schedule_interval(self.crap, 1/60)
+        # Clock.schedule_once(self.check_fps)
 
 
     def build(self):
@@ -61,10 +63,11 @@ class MainApp(App):
             a = self.bytes.find(b'\xff\xd8')
             b = self.bytes.find(b'\xff\xd9')
             if a!=-1 and b!=-1:
+                self.fps_check_num += 1
                 jpg = self.bytes[a:b+2]
                 self.bytes = self.bytes[b+2:]
                 self.draw_jpg(jpg)
-                print(len(self.bytes))
+                # print(len(self.bytes))
                 break
 
 
@@ -77,12 +80,17 @@ class MainApp(App):
         # self.texture.blit_buffer(img_pil.tobytes())
 
         # with self.root.canvas as a: # 描画
+        # TODO: よくわからん。
         self.canvas.clear()
         self.canvas.add(Rectangle(texture = im.texture , size=Window.size))
         # with self.root.ids.widget.canvas:
         # with self.root.canvas:
         #     Rectangle(texture=texture, size=Window.size)
 
+    def check_fps(self,*args):
+        self.fps_check_num = 0
+        time.sleep(10)
+        print(self.fps_check_num)
 
 
 if __name__ == '__main__':
